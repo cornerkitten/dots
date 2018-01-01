@@ -1,0 +1,79 @@
+$box-size: 25vh; // 32px * 2
+$box-gap: 5vh; // 8px * 2
+$dot-color: #F1A66A;
+$line-color: #F1A66A;
+//#F1A66A mid orange
+//#73628A plum
+//#183642 gray blue
+//#313D5A deep blue
+//#FCD29F light orange
+//#FCEFEF paper white
+//#BBA0B2
+//#9D858D
+
+body {
+  background-color: #FCEFEF;
+  margin: 0;
+}
+
+.center {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: inline-block;
+  font-size: 0;
+}
+
+.dot {
+  background-color: $dot-color;
+  // border-radius: $box-gap;
+  display: inline-block;
+  height: $box-gap;
+  transition: transform 0.5s;
+  width: $box-gap;
+  
+  &:hover {
+    transform: scale(1.5, 1.5);
+  }
+}
+
+.h-line {
+  background-color: $line-color;
+  display: inline-block;
+  height: $box-gap / 2;
+  margin: ($box-gap / 4) 0;
+  width: $box-size;
+}
+
+.v-line {
+  background-color: $line-color;
+  display: inline-block;
+  height: $box-size;
+  margin: 0 ($box-gap / 4);
+  width: $box-gap / 2;
+}
+
+.box-space {
+  display: inline-block;
+  height: $box-size;
+  width: $box-size;
+}
+
+.v-line,
+.h-line {
+  opacity: 0.25;
+  transition: opacity 0.25s;
+  
+  &:hover {
+    cursor: pointer;
+    opacity: 0.5;
+  }
+}
+
+.solid-line {
+  opacity: 1 !important;
+}
