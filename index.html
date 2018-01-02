@@ -3,11 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="bundle.css" />
-    <title>Dot Game Prototype V2</title>
+    <title>Dot Game Prototype V3 - Using Vue</title>
 </head>
 <body>
-  <div class="container">
-    <div id="game">
+  <div id="app" class="container">
+    <dot-game :cols="cellCount" :rows="cellCount"></dot-game>
+  <!--   <div id="game">
       <div class="dot"><span></span></div>
       <div class="h-line"><span></span></div>
       <div class="dot"><span></span></div>
@@ -37,8 +38,9 @@
       <div class="dot"><span></span></div>
       <div class="h-line"><span></span></div>
       <div class="dot"><span></span></div>
-    </div>
+    </div> -->
   </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.4/vue.min.js"></script>
   <script src="bundle.js"></script>
 </body>
 </html>

@@ -13,14 +13,12 @@ body, htmL {
   height: 100vh;
 }
 
-#game {
+.dot-game {
   $line-size: 8fr;
   $dot-size: 1fr;
   display: grid;
-  grid-template-columns: repeat(2, $dot-size $line-size) $dot-size;
-  grid-template-rows: repeat(2, $dot-size $line-size) $dot-size;
-  // grid-template-columns: 1fr 4fr 1fr 4fr 1fr;
-  // grid-template-rows: 1fr 4fr 1fr 4fr 1fr;
+  // grid-template-columns: repeat(2, $dot-size $line-size) $dot-size;
+  // grid-template-rows: repeat(2, $dot-size $line-size) $dot-size;
   height: 75vmin;
   margin: 0 auto;
   width: 75vmin;
