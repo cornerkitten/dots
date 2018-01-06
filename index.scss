@@ -36,6 +36,8 @@ body, html {
     0.5s transform,
     0.5s background-color;
   width: 400%;
+  /* TODO Provide alternative fix for display change when transform comes into play */
+  will-change: transform;
   z-index: 1;
   
   & span {

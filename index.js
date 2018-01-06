@@ -1,14 +1,50 @@
 document.addEventListener('touchstart', () => {}, true);
 
 Vue.component('dot', {
+  props: {
+    col: {
+      type: Number,
+      required: true,
+    },
+    row: {
+      type: Number,
+      required: true,
+    },
+  },
+  // data() {
+  //   return {
+  //     isSelected: false,
+  //   };
+  // },
+  computed: {
+    isSelected() {
+      const selected = this.$store.state.selected;
+      return (selected !== null
+        && selected.row === this.row
+        && selected.col === this.col);
+    },
+  },
   methods: {
     select: function(event) {
       // TODO Move class name to data/constant
-      this.$el.querySelector('span').classList.toggle('selected');
+      // console.info(`col: ${this.col}, row: ${this.row}`);
+      // console.info(this.$store.commit('increment'));
+      // console.info(this.$store.state.count);
+      
+      this.$store.commit({
+        type: 'select',
+        row: this.row,
+        col: this.col,
+      });
+      console.info(this.$store.state);
+     
+      // this.isSelected = !this.isSelected;
     },
   },
   template: `
-<div class="dot" v-on:click="select"><span></span></div>
+<div class="dot" v-on:click="select">
+  <span v-bind:class="{ 'selected': isSelected }"></span>
+</div>
 `,
 });
 
@@ -54,7 +90,7 @@ Vue.component('dot-game', {
   <template v-for="row in rows">
     <!-- Generate horizontal lines and dots -->
     <template v-for="col in cols">
-      <dot></dot>
+      <dot :col="col" :row="row"></dot>
       <h-line v-if="col < cols"></h-line>
     </template>
 
@@ -67,12 +103,35 @@ Vue.component('dot-game', {
 </div>`,
 });
 
+const store = new Vuex.Store({
+  state: {
+    selected: null,
+  },
+  mutations: {
+    select(state, payload) {
+      if (state.selected !== null
+        && state.selected.row === payload.row
+        && state.selected.col === payload.col
+      ) {
+        state.selected = null;
+      } else if (state.selected === null) {
+        state.selected = {
+          row: payload.row,
+          col: payload.col,
+        };
+      }
+    },
+  },
+});
+
 new Vue({
   el: '#app',
+  store,
   data() {
     return {
       dotCount: 2,
     };
   },
 });
+
 
