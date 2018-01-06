@@ -26,24 +26,57 @@ Vue.component('overview', {
       // console.info('isPlaying', (this.$store.getters.winner === null));
       return (this.$store.getters.winner === null);
     },
+    scores() {
+      return {
+        1: this.$store.state.scores[1],
+        2: this.$store.state.scores[2],
+      }
+    }
   },
   template: `
-<div class="overview">
-  <template v-if="isPlaying">
-    <div class="player" v-bind:class="{ 'current-player': currentPlayer === 1 }">
-      1
+    <div class="overview">
+      <template v-if="isPlaying">
+        <!-- <player player-id="1" name="A"></player>
+        <player player-id="2" name="B"></player> -->
+        <div class="player" v-bind:class="{ 'current-player': currentPlayer === 1 }">
+          1
+        </div>
+        <div class="player" v-bind:class="{ 'current-player': currentPlayer === 2 }">
+          2
+        </div>
+      </template>
+      <template v-else>
+        <div class="status">
+          {{ winStatus }}
+        </div>
+      </template>
     </div>
-    <div class="player" v-bind:class="{ 'current-player': currentPlayer === 2 }">
-      2
+  `,
+});
+
+Vue.component('player', {
+  props: {
+    name: {
+      type: String,
+      required: true,
+    },
+    playerId: {
+      type: Number,
+      required: true,
+    }
+  },
+  computed: {
+    score() {
+      console.info('playerId', this.playerId);
+      return this.$store.state.scores[this.playerId];
+    },
+  },
+  template: `
+    <div>
+      <div>{{ name }}</div>
+      <div>{{ score }}</div>
     </div>
-  </template>
-  <template v-else>
-    <div class="status">
-      {{ winStatus }}
-    </div>
-  </template>
-</div>
-`,
+  `,
 });
 
 Vue.component('dot', {
@@ -73,11 +106,19 @@ Vue.component('dot', {
       });
     },
   },
+  data() {
+    return {
+      style: {
+        animationDelay: 0.25 + .25 * (this.row * this.col) / this.$store.state.maxScore + 's',
+        // animationDelay: .15 * (this.row) + 's',
+      },
+    };
+  },
   template: `
-<div class="dot" v-on:click="select">
-  <span v-bind:class="{ 'selected': isSelected }"></span>
-</div>
-`,
+    <div class="dot" v-on:click="select" v-bind:style="style">
+      <span v-bind:class="{ 'selected': isSelected }"></span>
+    </div>
+  `,
 });
 
 // TODO Refactor h-line and v-line into a single component square-edge
@@ -105,8 +146,8 @@ Vue.component('h-line', {
     },
   },
   template: `
-<div class="h-line" v-bind:class="{ 'selected': isSelected }"><span></span></div>
-`,
+    <div class="h-line" v-bind:class="{ 'selected': isSelected }"><span></span></div>
+  `,
 });
 
 Vue.component('v-line', {
@@ -133,8 +174,8 @@ Vue.component('v-line', {
     },
   },
   template: `
-<div class="v-line" v-bind:class="{ 'selected': isSelected }"><span></span></div>
-`,
+    <div class="v-line" v-bind:class="{ 'selected': isSelected }"><span></span></div>
+  `,
 });
 
 Vue.component('cell', {
@@ -165,14 +206,14 @@ Vue.component('cell', {
     },
   },
   template: `
-<div class="cell" v-bind:class="{ 'filled-cell': isFilled }">
-  <div v-if="isFilled" class="player">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-      <text x="16" y="18" text-anchor="middle" alignment-baseline="middle" font-size="32">{{ player }}</text>
-    </svg>
-  </div>
-</div>
-`,
+    <div class="cell" v-bind:class="{ 'filled-cell': isFilled }">
+      <div v-if="isFilled" class="player">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+          <text x="16" y="18" text-anchor="middle" alignment-baseline="middle" font-size="32">{{ player }}</text>
+        </svg>
+      </div>
+    </div>
+  `,
 });
 
 Vue.component('dot-graph', {
@@ -195,21 +236,22 @@ Vue.component('dot-graph', {
     };
   },
   template: `
-<div class="dot-graph" v-bind:style="gameStyle">
-  <template v-for="row in rows">
-    <!-- Generate horizontal lines and dots -->
-    <template v-for="col in cols">
-      <dot :col="col" :row="row"></dot>
-      <h-line v-if="col < cols" :row="row" :left-col="col" :right-col="col + 1"></h-line>
-    </template>
+    <div class="dot-graph" v-bind:style="gameStyle">
+      <template v-for="row in rows">
+        <!-- Generate horizontal lines and dots -->
+        <template v-for="col in cols">
+          <dot :col="col" :row="row"></dot>
+          <h-line v-if="col < cols" :row="row" :left-col="col" :right-col="col + 1"></h-line>
+        </template>
 
-    <!-- Generate vertical lines and cell spaces -->
-    <template v-if="row < rows" v-for="col in cols">
-      <v-line :top-row="row" :bottom-row="row + 1" :col="col"></v-line>
-      <cell v-if="col < cols" :top-row="row" :left-col="col"></cell>
-    </template>
-  </template>
-</div>`,
+        <!-- Generate vertical lines and cell spaces -->
+        <template v-if="row < rows" v-for="col in cols">
+          <v-line :top-row="row" :bottom-row="row + 1" :col="col"></v-line>
+          <cell v-if="col < cols" :top-row="row" :left-col="col"></cell>
+        </template>
+      </template>
+    </div>
+  `,
 });
 
 
@@ -460,7 +502,9 @@ const store = new Vuex.Store({
       Vue.set(state.faces, squareFaceId(nodes), state.currentPlayer);
     },
     incrementPlayerScore(state, player) {
+      console.info(state.scores[player]);
       Vue.set(state.scores, player, state.scores[player] + 1);
+      console.info(state.scores[player]);
     },
     toggleCurrentPlayer(state) {
       if (state.currentPlayer === 1) {
