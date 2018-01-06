@@ -1,25 +1,26 @@
 // TODO
 //  - Add cell capturing (consider having something collected from the center)
-//  - Fix required vs isRequired on component props
 // DONE
 //  - Refactor state logic
 //  - Refresh h-line component when state changes for $store.state.hLines
+//  - Fix required vs isRequired on component props (should be required)
+
+const DOT_COUNT = 3;
+
 document.addEventListener('touchstart', () => {}, true);
 
 Vue.component('overview', {
   computed: {
-    currentPlayer() {
-      return this.$store.state.currentPlayer;
-    },
     winStatus() {
-      const player = this.$store.getters.winner;
+      const winnerId = this.$store.getters.winner;
 
-      if (player === 0) {
-        return 'Tie!';
-      } else if (player > 0) {
-        return `Player ${player} Wins!`;
+      if (winnerId === 0) {
+        let firstPlayerName = this.$store.getters.playerName(1);
+        let secondPlayerName = this.$store.getters.playerName(2);
+        return `${firstPlayerName} & ${secondPlayerName} Tie`;
       } else {
-        return undefined;
+        let winnerName = this.$store.getters.playerName(winnerId);
+        return `${winnerName} Wins`;
       }
     },
     isPlaying() {
@@ -36,13 +37,9 @@ Vue.component('overview', {
   template: `
     <div class="overview">
       <template v-if="isPlaying">
-        <!-- <player player-id="1" name="A"></player>
-        <player player-id="2" name="B"></player> -->
-        <div class="player" v-bind:class="{ 'current-player': currentPlayer === 1 }">
-          1
-        </div>
-        <div class="player" v-bind:class="{ 'current-player': currentPlayer === 2 }">
-          2
+        <div class="players">
+          <player :player-id="1"></player>
+          <player :player-id="2"></player>
         </div>
       </template>
       <template v-else>
@@ -56,25 +53,38 @@ Vue.component('overview', {
 
 Vue.component('player', {
   props: {
-    name: {
-      type: String,
-      required: true,
-    },
+    // playerName: {
+    //   type: String,
+    //   required: true,
+    // },
     playerId: {
       type: Number,
       required: true,
     }
   },
   computed: {
+    isCurrentPlayer() {
+      return this.$store.state.currentPlayer === this.playerId;
+    },
     score() {
-      console.info('playerId', this.playerId);
+      // console.info('playerId', this.playerId);
       return this.$store.state.scores[this.playerId];
     },
+    name() {
+      return this.$store.getters.playerName(this.playerId);
+    },
   },
+  // data() {
+  //   return {
+  //     classes: {
+  //       'current-player': this.currentPlayer === this.playerId,
+  //     },
+  //   };
+  // },
   template: `
-    <div>
-      <div>{{ name }}</div>
-      <div>{{ score }}</div>
+    <div class="player" v-bind:class="{ 'current-player': isCurrentPlayer }">
+      <div class="name">{{ name }}</div>
+      <div class="score">{{ score }}</div>
     </div>
   `,
 });
@@ -126,15 +136,15 @@ Vue.component('h-line', {
   props: {
     row: {
       type: Number,
-      isRequired: true,
+      required: true,
     },
     leftCol: {
       type:Number,
-      isRequired: true,
+      required: true,
     },
     rightCol: {
       type:Number,
-      isRequired: true,
+      required: true,
     },
   },
   computed: {
@@ -154,15 +164,15 @@ Vue.component('v-line', {
   props: {
     col: {
       type: Number,
-      isRequired: true,
+      required: true,
     },
     topRow: {
       type: Number,
-      isRequired: true,
+      required: true,
     },
     bottomRow: {
       type: Number,
-      isRequired: true,
+      required: true,
     },
   },
   computed: {
@@ -182,11 +192,11 @@ Vue.component('cell', {
   props: {
     topRow: {
       type: Number,
-      isRequired: true,
+      required: true,
     },
     leftCol: {
       type: Number,
-      isRequired: true,
+      required: true,
     },
   },
   computed: {
@@ -199,10 +209,11 @@ Vue.component('cell', {
       return result;
     },
     player() {
-      return this.$store.getters.playerAtCell({
+      let playerId = this.$store.getters.playerAtCell({
         topRow: this.topRow,
         leftCol: this.leftCol,
       });
+      return this.$store.getters.playerInitial(playerId);
     },
   },
   template: `
@@ -255,8 +266,6 @@ Vue.component('dot-graph', {
 });
 
 
-
-const DOT_COUNT = 4;
 
 function squareNodeId(row, col) {
   return `r${row}c${col}`;
@@ -401,6 +410,7 @@ const store = new Vuex.Store({
     currentPlayer: 1,
     maxScore: Math.pow(DOT_COUNT - 1, 2),
     scores: { 1: 0, 2: 0 },
+    playerNames: { 1: 'Yoshi', 2: 'Mario' },
   },
   getters: {
     isSelectedDot(state) {
@@ -428,6 +438,12 @@ const store = new Vuex.Store({
         ];
         return state.faces[squareFaceId(nodes)];
       });
+    },
+    playerName(state) {
+      return playerId => state.playerNames[playerId];
+    },
+    playerInitial(state) {
+      return playerId => state.playerNames[playerId].substr(0, 1);
     },
     winner(state) {
       // console.info('winner getter');

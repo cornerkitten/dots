@@ -28,50 +28,73 @@ body, html {
 
 .overview {
   display: flex;
+  font-size: 5vh;
+  font-weight: bold;
+  height: 10vh;
   padding-top: 5vh;
   width: 75vmin;
   
-  .status, .player {
+  .players {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    width: 100%;
+  }
+  
+  .status {
     background-color: $line-color;
     color: $bg-color;
     cursor: default;
-    font-size: 5vh; // 3rem
-    font-weight: bold;
     // height: 5vmin;
-    opacity: 0.25;
     padding: 2.5vmin 0; // 16px
     text-align: center;
     transition: opacity 0.5s;
     user-select: none;
     width: 50%;
-    
-    &.current-player {
-      opacity: 1;
-    }
   }
   
   .status {
     border-radius: 16px;
-    opacity: 1;
     width: 100%;
   }
   
-  & > .player:first-child {
+  .player:first-child {
     border-radius: 16px 0 0 16px;
   }
   
-  & > .player:last-child {
+  .player:last-child {
     border-radius: 0 16px 16px 0;
   }
-  
-//   svg {
-//     height: 100%;
-    
-//     text {
-//       fill: $bg-color;
-//       font-family: 'Helvetica', 'Arial', sans-serif;
-//     }
-//   }
+}
+
+.overview {
+  .player {
+    cursor: default;
+    display: flex;
+    justify-content: center;
+    opacity: 0.25;
+    transition: opacity 0.5s;
+
+    &.current-player {
+      opacity: 1;
+    }
+
+    & > * {
+      padding: 2.5vmin;
+      text-align: center;
+      width: 40%;
+    }
+
+    .name {
+      background-color: $line-color;
+      color: $bg-color;
+      user-select: none;
+      border-radius: 16px;
+    }
+
+    .score {
+      color: $line-color;
+    }
+  }
 }
 
 .dot-graph {
