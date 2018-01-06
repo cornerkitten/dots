@@ -28,10 +28,10 @@ body, html {
 
 .overview {
   display: flex;
-  font-size: 5vh;
+  font-size: 5vmin;
   font-weight: bold;
-  height: 10vh;
-  padding-top: 5vh;
+  height: 10vmin;
+  padding: 2.5vmin 0;
   width: 75vmin;
   
   .players {
@@ -81,17 +81,23 @@ body, html {
     & > * {
       padding: 2.5vmin;
       text-align: center;
-      width: 40%;
+      width: 47%;
     }
 
     .name {
       background-color: $line-color;
+      border: 1vmin solid $line-color;
+      box-sizing: border-box;
       color: $bg-color;
       user-select: none;
-      border-radius: 16px;
+      border-radius: 5vmin 0 0 5vmin;
     }
 
     .score {
+      border: 1vmin solid $line-color;
+      border-radius: 0 5vmin 5vmin 0;
+      box-sizing: border-box;
+      // margin-top: -10px;
       color: $line-color;
     }
   }
@@ -142,6 +148,8 @@ body, html {
     $dot-size: 50%;
     
     background-color: $dot-color;
+    // TODO Fix cutoff issue when circle is scaled
+    // border-radius: $dot-size;
     display: block;
     height: $dot-size;
     margin: $dot-size / 2;
@@ -150,6 +158,7 @@ body, html {
       0.2s border-radius,
       0.2s transform;
     width: $dot-size;
+    // will-change: transform;
     
     &.selected {
       // background-color: $selected-dot-color;
@@ -240,4 +249,5 @@ body, html {
     }
   }
 }
+
 

@@ -5,7 +5,7 @@
 //  - Refresh h-line component when state changes for $store.state.hLines
 //  - Fix required vs isRequired on component props (should be required)
 
-const DOT_COUNT = 3;
+const DOT_COUNT = 8;
 
 document.addEventListener('touchstart', () => {}, true);
 
@@ -544,4 +544,5 @@ new Vue({
     };
   },
 });
+
 
