@@ -2,6 +2,7 @@ $bg-color: #FCEFEF;
 $dot-color: #F1A66A;
 $selected-dot-color: #5C9EAD; // #326273
 $line-color: #F1A66A;
+$filled-cell-color: #F1A66A;
 
 body, html {
   background-color: $bg-color;
@@ -100,6 +101,16 @@ body, html {
   
   &.selected {
     transform: scaleX(1);
+  }
+}
+
+.cell {
+  // background-color: pink;
+  opacity: 0.75;
+  transition: background-color 1.5s;
+  
+  &.filled-cell {
+    background-color: $filled-cell-color;
   }
 }
 

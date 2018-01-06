@@ -22,10 +22,6 @@ Vue.component('dot', {
       return this.$store.getters.isSelectedDot({
         row: this.row, col: this.col
       });
-      //const selected = this.$store.state.selected;
-      // return (selected !== null
-      //   && selected.row === this.row
-      //   && selected.col === this.col);
     },
   },
   methods: {
@@ -35,7 +31,6 @@ Vue.component('dot', {
         row: this.row,
         col: this.col,
       });
-      // console.info(this.$store.state);
     },
   },
   template: `
@@ -95,10 +90,6 @@ Vue.component('v-line', {
         first: { row: this.topRow, col: this.col },
         second: { row: this.bottomRow, col: this.col },
       });
-      
-      // return false;
-      // console.info(this.col, this.row);
-      // return this.$store.state.vLines[this.col][this.row];
     },
   },
   template: `
@@ -107,8 +98,28 @@ Vue.component('v-line', {
 });
 
 Vue.component('cell-space', {
+  props: {
+    topRow: {
+      type: Number,
+      isRequired: true,
+    },
+    leftCol: {
+      type: Number,
+      isRequired: true,
+    },
+  },
+  computed: {
+    isFilled() {
+      const result = this.$store.getters.isFilledFace({
+        topRow: this.topRow,
+        leftCol: this.leftCol,
+      });
+      console.info('isFilled', result);
+      return result;
+    }
+  },
   template: `
-<div class="space"><span></span></div>
+<div class="cell" v-bind:class="{ 'filled-cell': isFilled }"><span></span></div>
 `,
 });
 
@@ -137,14 +148,13 @@ Vue.component('dot-game', {
     <!-- Generate horizontal lines and dots -->
     <template v-for="col in cols">
       <dot :col="col" :row="row"></dot>
-      <h-line v-if="col < cols" :row="row" :left-col="col" :right-col="col + 1">
-      </h-line>
+      <h-line v-if="col < cols" :row="row" :left-col="col" :right-col="col + 1"></h-line>
     </template>
 
     <!-- Generate vertical lines and cell spaces -->
     <template v-if="row < rows" v-for="col in cols">
       <v-line :top-row="row" :bottom-row="row + 1" :col="col"></v-line>
-      <cell-space v-if="col < cols"></cell-space>
+      <cell-space v-if="col < cols" :top-row="row" :left-col="col"></cell-space>
     </template>
   </template>
 </div>`,
@@ -153,33 +163,6 @@ Vue.component('dot-game', {
 
 
 const DOT_COUNT = 4;
-
-// class LineGrid {
-//   constructor(dotCount) {
-//     this.dotCount = dotCount;
-//     this.hLines = Array(dotCount).fill().map(() => Array(dotCount - 1).fill(false));
-//     this.vLines = Array(dotCount).fill().map(() => Array(dotCount - 1).fill(false));
-//   }
-// }
-
-// class Graph {
-
-// }
-
-// {
-//   nodes: [
-//     'r1c1': 0,
-//     1,
-//     2,
-//     ...
-//   ],
-//   edges: {
-//     {
-//       '0-1': false,
-//       '2-3': false,
-//     }
-//   }
-// }
 
 function squareNodeId(row, col) {
   return `r${row}c${col}`;
@@ -199,7 +182,17 @@ function squareEdgeId(squareNodeA, squareNodeB) {
   return `${squareNodeId(first.row, first.col)}-${squareNodeId(second.row, second.col)}`;
 }
 
-function squareGraph(size) {
+function squareFaceId(nodes) {
+  const separator = ',';
+  let id = squareEdgeId(nodes[0], nodes[1]) + separator;
+  id += squareEdgeId(nodes[1], nodes[2]) + separator;
+  id += squareEdgeId(nodes[2], nodes[3]) + separator;
+  id += squareEdgeId(nodes[3], nodes[0]);
+  
+  return id;
+}
+
+function squareGraphEdges(size) {
   const edges = {};
 
   for (let row = 1; row <= size; row++) {
@@ -216,10 +209,89 @@ function squareGraph(size) {
     }
   }
   
-  console.info(edges);
+  console.info('edges', edges);
   
   return edges;
 }
+
+function squareGraphFaces(size) {
+  let faces = {};
+  
+  for (let row = 1; row < size; row++) {
+    for (let col = 1; col < size; col++) {
+      const faceId = squareFaceId([
+        { row, col },
+        { row, col: col + 1 },
+        { row: row + 1, col: col + 1 },
+        { row: row + 1, col },
+      ]);
+      
+      faces[faceId] = false;
+    }
+  }
+  
+  console.info('faces', faces);
+  
+  return faces;
+}
+
+function adjacentSquareFacesOfEdge(nodeA, nodeB) {
+  const faces = [];
+
+  if (nodeA.row === nodeB.row) {
+    // Horizontal edge
+    let topRow = nodeA.row - 1;
+    let leftCol = Math.min(nodeA.col, nodeB.col);
+    
+    // Face above edge
+    if (topRow > 0) {
+      faces.push([
+        { row: topRow, col: leftCol },
+        { row: topRow, col: leftCol + 1 },
+        { row: topRow + 1, col: leftCol + 1},
+        { row: topRow + 1, col: leftCol},
+      ]);
+    }
+    // Face below edge
+    // TODO Refactor so DOT_COUNT is not required
+    if (topRow <= DOT_COUNT) {
+      faces.push([
+        { row: topRow + 1, col: leftCol },
+        { row: topRow + 1, col: leftCol + 1 },
+        { row: topRow + 2, col: leftCol + 1 },
+        { row: topRow + 2, col: leftCol },
+      ]);
+    }
+  } else {
+    // Vertical edge
+    let topRow = Math.min(nodeA.row, nodeB.row);
+    let leftCol = nodeA.col - 1;
+    
+    // Face left of edge
+    if (leftCol > 0) {
+      faces.push([
+        { row: topRow, col: leftCol },
+        { row: topRow, col: leftCol + 1 },
+        { row: topRow + 1, col: leftCol + 1 },
+        { row: topRow + 1, col: leftCol },
+      ]);
+    }
+    
+    // Face right of edge
+    // TODO Refactor so DOT_COUNT is not required
+    if (leftCol <= DOT_COUNT) {
+      faces.push([
+        { row: topRow, col: leftCol + 1 },
+        { row: topRow, col: leftCol + 2 },
+        { row: topRow + 1, col: leftCol + 2 },
+        { row: topRow + 1, col: leftCol + 1 },
+      ]);
+    }
+  }
+
+  return faces;
+}
+
 
 // TODO Change naming to nodeA and nodeB
 function isAdjacent(first, second) {
@@ -229,11 +301,9 @@ function isAdjacent(first, second) {
 
 const store = new Vuex.Store({
   state: {
-    // selected: null,
-    // hLines: Array(DOT_COUNT).fill().map(() => Array(DOT_COUNT - 1).fill(false)),
-    // vLines: Array(DOT_COUNT).fill().map(() => Array(DOT_COUNT - 1).fill(false)),
-    edges: squareGraph(DOT_COUNT),
+    edges: squareGraphEdges(DOT_COUNT),
     firstDot: null,
+    faces: squareGraphFaces(DOT_COUNT),
   },
   getters: {
     isSelectedDot(state) {
@@ -245,13 +315,21 @@ const store = new Vuex.Store({
     },
     isDrawnEdge(state) {
       return (({ first, second }) => state.edges[squareEdgeId(first, second)]);
-    }
+    },
+    isFilledFace(state) {
+      return (({ topRow, leftCol }) => {
+        const nodes = [
+          { row: topRow, col: leftCol },
+          { row: topRow, col: leftCol + 1 },
+          { row: topRow + 1, col: leftCol + 1 },
+          { row: topRow + 1, col: leftCol },
+        ];
+        return state.faces[squareFaceId(nodes)];
+      });
+    },
   },
   actions: {
-    actOnDot({commit, state}, dot) {
-      //commit('select', dot);
-      //return;
-      
+    actOnDot({commit, state, getters}, dot) {
       if (state.firstDot) {
         const firstDot = state.firstDot;
         const secondDot = dot;
@@ -259,6 +337,16 @@ const store = new Vuex.Store({
           commit('resetFirstDot');
         } else if (isAdjacent(firstDot, secondDot)) {
           commit('selectEdge', { firstDot, secondDot });
+          adjacentSquareFacesOfEdge(firstDot, secondDot).forEach(nodes => {
+            if (
+              getters.isDrawnEdge({ first: nodes[0], second: nodes[1] })
+              && getters.isDrawnEdge({ first: nodes[1], second: nodes[2] })
+              && getters.isDrawnEdge({ first: nodes[2], second: nodes[3] })
+              && getters.isDrawnEdge({ first: nodes[3], second: nodes[0] })
+            ) {
+              commit('selectFace', nodes);
+            }
+          });
           commit('resetFirstDot');
         } else {
           commit('resetFirstDot');
@@ -271,7 +359,6 @@ const store = new Vuex.Store({
   },
   mutations: {
     setFirstDot(state, { row, col }) {
-      // console.info('setFirstDot', row, col);
       state.firstDot = { row, col };
     },
     resetFirstDot(state) {
@@ -280,42 +367,13 @@ const store = new Vuex.Store({
     selectEdge(state, { firstDot, secondDot }) {
       Vue.set(state.edges, squareEdgeId(firstDot, secondDot), true);
     },
-    // select(state, payload) {
-    //   if (state.selected !== null) {
-    //     const first = state.selected;
-    //     const second = payload;
-    //     if (first.row === second.row && first.col === second.col) {
-    //       // Selected same dot, so undo that choice
-    //       state.selected = null;
-    //     } else if (isAdjacent(first, second)) {
-    //       // Selected an adjacent dot, so draw a line and reset dot selection
-    //       state.selected = null;
-    //       if (first.row === second.row) {
-    //         // Dealing with h-line
-    //         let leftCol = first.col < second.col ? first.col : second.col;
-    //         state.hLines[leftCol - 1][first.row - 1] = true;
-    //         // TODO Consider better approach for triggering Vue reaction
-    //         state.hLines = state.hLines.slice(0, state.hLines.length);
-    //       } else {
-    //         let topRow = first.row < second.row ? first.row : second.row;
-    //         state.vLines[first.col - 1][topRow - 1] = true;
-    //         // TODO Consider better approach for triggering Vue reaction
-    //         state.vLines = state.vLines.slice(0, state.vLines.length);
-    //       }
-    //     } else {
-    //       // Selected a non-adjacent dot, change selection to new dot
-    //       state.selected = {
-    //         row: payload.row,
-    //         col: payload.col,
-    //       };
-    //     }
-    //   } else {
-    //     state.selected = {
-    //       row: payload.row,
-    //       col: payload.col,
-    //     };
-    //   }
-    // }
+    selectFace(state, nodes) {
+      console.info('selectFace', nodes);
+      console.info('face id', squareFaceId(nodes));
+      console.info('face filled', state.faces[squareFaceId(nodes)]);
+      Vue.set(state.faces, squareFaceId(nodes), true);
+      console.info('face filled', state.faces[squareFaceId(nodes)]);
+    }
   },
 });
 
@@ -328,5 +386,4 @@ new Vue({
     };
   },
 });
-
 
