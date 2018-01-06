@@ -1,3 +1,5 @@
+// TODO
+//  - Refresh h-line component when state changes for $store.state.hLines
 document.addEventListener('touchstart', () => {}, true);
 
 Vue.component('dot', {
@@ -11,11 +13,6 @@ Vue.component('dot', {
       required: true,
     },
   },
-  // data() {
-  //   return {
-  //     isSelected: false,
-  //   };
-  // },
   computed: {
     isSelected() {
       const selected = this.$store.state.selected;
@@ -26,19 +23,12 @@ Vue.component('dot', {
   },
   methods: {
     select: function(event) {
-      // TODO Move class name to data/constant
-      // console.info(`col: ${this.col}, row: ${this.row}`);
-      // console.info(this.$store.commit('increment'));
-      // console.info(this.$store.state.count);
-      
       this.$store.commit({
         type: 'select',
         row: this.row,
         col: this.col,
       });
       console.info(this.$store.state);
-     
-      // this.isSelected = !this.isSelected;
     },
   },
   template: `
@@ -49,14 +39,46 @@ Vue.component('dot', {
 });
 
 Vue.component('h-line', {
+  props: {
+    row: {
+      type: Number,
+      isRequired: true,
+    },
+    col: {
+      type: Number,
+      isRequired: true,
+    },
+  },
+  computed: {
+    isSelected() {
+      return this.$store.state.hLines[this.col][this.row];
+    },
+  },
   template: `
-<div class="h-line"><span></span></div>
+<div class="h-line" v-bind:class="{ 'selected': isSelected }"><span></span></div>
 `,
 });
 
 Vue.component('v-line', {
+  props: {
+    col: {
+      type: Number,
+      isRequired: true,
+    },
+    row: {
+      type: Number,
+      isRequired: true,
+    },
+  },
+  computed: {
+    isSelected() {
+      // return false;
+      console.info(this.col, this.row);
+      return this.$store.state.vLines[this.col][this.row];
+    },
+  },
   template: `
-<div class="v-line"><span></span></div>
+<div class="v-line" v-bind:class="{ 'selected': isSelected }"><span></span></div>
 `,
 });
 
@@ -91,36 +113,63 @@ Vue.component('dot-game', {
     <!-- Generate horizontal lines and dots -->
     <template v-for="col in cols">
       <dot :col="col" :row="row"></dot>
-      <h-line v-if="col < cols"></h-line>
+      <h-line v-if="col < cols" :row="row - 1" :col="col - 1"></h-line>
     </template>
 
     <!-- Generate vertical lines and cell spaces -->
     <template v-if="row < rows" v-for="col in cols">
-      <v-line></v-line>
+      <v-line :row="row - 1" :col="col - 1"></v-line>
       <cell-space v-if="col < cols"></cell-space>
     </template>
   </template>
 </div>`,
 });
 
+const DOT_COUNT = 3;
 const store = new Vuex.Store({
   state: {
     selected: null,
+    hLines: Array(DOT_COUNT).fill().map(() => Array(DOT_COUNT - 1).fill(false)),
+    vLines: Array(DOT_COUNT).fill().map(() => Array(DOT_COUNT - 1).fill(false)),
   },
   mutations: {
     select(state, payload) {
-      if (state.selected !== null
-        && state.selected.row === payload.row
-        && state.selected.col === payload.col
-      ) {
-        state.selected = null;
-      } else if (state.selected === null) {
+      function isAdjacent(first, second) {
+        return (first.row === second.row && (first.col === second.col - 1 || first.col === second.col + 1))
+          || (first.col === second.col && (first.row === second.row - 1 || first.row === second.row + 1));
+      }
+      
+      if (state.selected !== null) {
+        const first = state.selected;
+        const second = payload;
+        if (first.row === second.row && first.col === second.col) {
+          // Selected same dot, so undo that choice
+          state.selected = null;
+        } else if (isAdjacent(first, second)) {
+          // Selected an adjacent dot, so draw a line and reset dot selection
+          state.selected = null;
+          if (first.row === second.row) {
+            // Dealing with h-line
+            let leftCol = first.col < second.col ? first.col : second.col;
+            state.hLines[leftCol - 1][first.row - 1] = true;
+            // TODO Consider better approach for triggering Vue reaction
+            state.hLines = state.hLines.slice(0, state.hLines.length);
+          } else {
+            let topRow = first.row < second.row ? first.row : second.row;
+            state.vLines[first.col - 1][topRow - 1] = true;
+            // TODO Consider better approach for triggering Vue reaction
+            state.vLines = state.vLines.slice(0, state.vLines.length);
+          }
+        } else {
+          // Selected a non-adjacent dot, do nothing
+        }
+      } else {
         state.selected = {
           row: payload.row,
           col: payload.col,
         };
       }
-    },
+    }
   },
 });
 
@@ -129,7 +178,7 @@ new Vue({
   store,
   data() {
     return {
-      dotCount: 2,
+      dotCount: DOT_COUNT,
     };
   },
 });
