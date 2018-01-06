@@ -1,10 +1,12 @@
 $bg-color: #FCEFEF;
 $dot-color: #F1A66A;
+$selected-dot-color: #5C9EAD; // #326273
 $line-color: #F1A66A;
 
-body, htmL {
+body, html {
   background-color: $bg-color;
   margin: 0;
+  overflow: hidden;
 }
 
 .container {
@@ -17,8 +19,6 @@ body, htmL {
   $line-size: 8fr;
   $dot-size: 1fr;
   display: grid;
-  // grid-template-columns: repeat(2, $dot-size $line-size) $dot-size;
-  // grid-template-rows: repeat(2, $dot-size $line-size) $dot-size;
   height: 75vmin;
   margin: 0 auto;
   width: 75vmin;
@@ -29,15 +29,14 @@ body, htmL {
 }
 
 .dot {
-  // background-color: pink;
-  // box-sizing: border-box;
   margin-left: -150%;
   margin-top: -150%;
   height: 400%;
-  transition: 0.5s transform;
+  transition:
+    0.5s transform,
+    0.5s background-color;
   width: 400%;
   z-index: 1;
-  // transform: translate(-50%, -50%);
   
   & span {
     $dot-size: 50%;
@@ -47,31 +46,24 @@ body, htmL {
     height: $dot-size;
     margin: $dot-size / 2;
     transition:
-      0.2s transform,
-      0.2s border-radius;
+      0.2s background-color,
+      0.2s border-radius,
+      0.2s transform;
     width: $dot-size;
+    
+    &.selected {
+      background-color: $selected-dot-color;
+      transform: rotateZ(45deg);
+    }
+  }
+  
+  &:hover {
+    cursor: pointer;
   }
   
   &:hover span {
-    // border-radius: 50%;
-    cursor: pointer;
-    transform: rotateZ(45deg); // scale(1.5, 1.5) 
+    background-color: $selected-dot-color;
   }
-  
-  // &::before {
-  //   background-color: $dot-color;
-  //   content: '';
-  //   display: block;
-  //   height: 50%;
-  //   left: 25%;
-  //   position: relative;
-  //   top: 25%;
-  //   width: 50%;
-  // }
-  
-  // &:hover {
-  //   transform: scale(2, 2);
-  // }
 }
 
 .h-line,
