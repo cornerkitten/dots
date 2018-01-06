@@ -32,6 +32,7 @@ body, html {
   margin-left: -150%;
   margin-top: -150%;
   height: 400%;
+  -webkit-tap-highlight-color: transparent;
   transition:
     0.5s transform,
     0.5s background-color;
@@ -55,7 +56,8 @@ body, html {
     
     &.selected {
       // background-color: $selected-dot-color;
-      transform: rotateZ(45deg);
+      // transform: rotateZ(45deg);
+      transform: scale(2);
     }
   }
   
@@ -72,15 +74,32 @@ body, html {
 .v-line {
   background-color: $line-color;
   opacity: 0.25;
-  transition: 1s opacity;
+  transition: 1s opacity, 0.5s transform;
+  // transform-origin: top left;
   
   &:hover {
     opacity: 0.75;
   }
   
   &.selected {
-    background-color: black;
+    // background-color: black;
+    opacity: 1;
   }
 }
 
+.v-line {
+  transform: scaleY(0);
+  
+  &.selected {
+    transform: scaleY(1);
+  }
+}
+
+.h-line {
+  transform: scaleX(0);
+  
+  &.selected {
+    transform: scaleX(1);
+  }
+}
 

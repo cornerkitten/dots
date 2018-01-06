@@ -28,7 +28,7 @@ Vue.component('dot', {
         row: this.row,
         col: this.col,
       });
-      console.info(this.$store.state);
+      // console.info(this.$store.state);
     },
   },
   template: `
@@ -73,7 +73,7 @@ Vue.component('v-line', {
   computed: {
     isSelected() {
       // return false;
-      console.info(this.col, this.row);
+      // console.info(this.col, this.row);
       return this.$store.state.vLines[this.col][this.row];
     },
   },
@@ -125,7 +125,7 @@ Vue.component('dot-game', {
 </div>`,
 });
 
-const DOT_COUNT = 3;
+const DOT_COUNT = 4;
 const store = new Vuex.Store({
   state: {
     selected: null,
@@ -161,7 +161,11 @@ const store = new Vuex.Store({
             state.vLines = state.vLines.slice(0, state.vLines.length);
           }
         } else {
-          // Selected a non-adjacent dot, do nothing
+          // Selected a non-adjacent dot, change selection to new dot
+          state.selected = {
+            row: payload.row,
+            col: payload.col,
+          };
         }
       } else {
         state.selected = {
