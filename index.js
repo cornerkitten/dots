@@ -4,10 +4,52 @@
 //  - Refactor state logic
 //  - Refresh h-line component when state changes for $store.state.hLines
 //  - Fix required vs isRequired on component props (should be required)
+// THANKS
+//  - Confetti implementation inspired from "CSS Particle Effects" pen
+//    by Atticus Koya (https://codepen.io/k-ya/pen/bpxgWZ)
 
-const DOT_COUNT = 8;
+const DOT_COUNT = 4;
 
 document.addEventListener('touchstart', () => {}, true);
+
+
+Vue.component('confetti', {
+  template: `
+    <div class="confetti-root">
+      <confetti-piece v-for="n in 100"></confetti-piece>
+    </div>
+  `,
+});
+
+Vue.component('confetti-piece', {
+  data() {
+    let colors = [
+      '#0066cc',
+      'orange',
+      'pink',
+    ];
+
+    let left = (Math.random() * 100 - 50) + 'vw';
+    let animationDuration = (Math.random() * 2500 + 1500) + 'ms';
+    let animationDelay = (Math.random() * 1000) + 'ms';
+
+    let colorIndex = Math.floor(Math.random() * colors.length);
+    let backgroundColor = colors[colorIndex];
+    // confetti.style.boxShadow = '0 0 5px ' + colors[colorIndex];
+    
+    return {
+      style: {
+        animationDelay,
+        animationDuration,
+        backgroundColor,
+        left,
+      },
+    };
+  },
+  template: `
+    <div class="confetti" v-bind:style="style"></div>
+  `,
+});
 
 Vue.component('overview', {
   computed: {
@@ -43,6 +85,7 @@ Vue.component('overview', {
         </div>
       </template>
       <template v-else>
+        <confetti></confetti>
         <div class="status">
           {{ winStatus }}
         </div>
@@ -544,5 +587,4 @@ new Vue({
     };
   },
 });
-
 

@@ -251,3 +251,35 @@ body, html {
 }
 
 
+
+
+
+.confetti-root {
+  background-color: #0066cc;
+  left: 50vw;
+  position: fixed;
+  top: 0;
+}
+
+.confetti {
+  animation-iteration-count: infinite;
+  animation-name: confetti;
+  animation-timing-function: linear;
+  background-color: #0066cc;
+  height: 1vmin;
+  position: absolute;
+  top: -10vh;
+  width: 2vmin;
+}
+
+@keyframes confetti {
+  0% {
+    transform: translate3d(0, 0, 0) rotateZ(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 110vh, 0) rotateZ(1440deg);
+    opacity: 0;
+  }
+}
+
