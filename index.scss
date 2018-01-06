@@ -1,3 +1,5 @@
+// DONE
+//  - Replace use of rem padding, etc. with vmin
 $bg-color: #FCEFEF;
 $dot-color: #F1A66A;
 $selected-dot-color: #5C9EAD; // #326273
@@ -13,7 +15,7 @@ body, html {
 
 .container {
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -22,16 +24,17 @@ body, html {
 
 .overview {
   display: flex;
+  padding-top: 5vh;
   width: 75vmin;
   
   .player {
     background-color: $line-color;
     color: $bg-color;
     cursor: default;
-    font-size: 3rem;
+    font-size: 5vh; // 3rem
     font-weight: bold;
     opacity: 0.25;
-    padding: 16px;
+    padding: 2.5vh; // 16px
     text-align: center;
     transition: opacity 0.5s;
     user-select: none;
@@ -56,6 +59,7 @@ body, html {
   $dot-size: 1fr;
   display: grid;
   height: 75vmin;
+  padding: 5vh;
   width: 75vmin;
 }
 
@@ -153,7 +157,7 @@ body, html {
   .player {
     color: $bg-color;
     cursor: default;
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: bold;
   }
 }
