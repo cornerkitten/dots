@@ -10,16 +10,38 @@ Vue.component('overview', {
   computed: {
     currentPlayer() {
       return this.$store.state.currentPlayer;
-    }
+    },
+    winStatus() {
+      const player = this.$store.getters.winner;
+
+      if (player === 0) {
+        return 'Tie!';
+      } else if (player > 0) {
+        return `Player ${player} Wins!`;
+      } else {
+        return undefined;
+      }
+    },
+    isPlaying() {
+      // console.info('isPlaying', (this.$store.getters.winner === null));
+      return (this.$store.getters.winner === null);
+    },
   },
   template: `
 <div class="overview">
-  <div class="player" v-bind:class="{ 'current-player': currentPlayer === 1 }">
-    1
-  </div>
-  <div class="player" v-bind:class="{ 'current-player': currentPlayer === 2 }">
-    2
-  </div>
+  <template v-if="isPlaying">
+    <div class="player" v-bind:class="{ 'current-player': currentPlayer === 1 }">
+      1
+    </div>
+    <div class="player" v-bind:class="{ 'current-player': currentPlayer === 2 }">
+      2
+    </div>
+  </template>
+  <template v-else>
+    <div class="status">
+      {{ winStatus }}
+    </div>
+  </template>
 </div>
 `,
 });
@@ -335,6 +357,8 @@ const store = new Vuex.Store({
     edges: squareGraphEdges(DOT_COUNT),
     faces: squareGraphFaces(DOT_COUNT),
     currentPlayer: 1,
+    maxScore: Math.pow(DOT_COUNT - 1, 2),
+    scores: { 1: 0, 2: 0 },
   },
   getters: {
     isSelectedDot(state) {
@@ -363,6 +387,23 @@ const store = new Vuex.Store({
         return state.faces[squareFaceId(nodes)];
       });
     },
+    winner(state) {
+      // console.info('winner getter');
+      // console.info(state.maxScore);
+      // console.info(state.scores[1]);
+      // console.info(state.scores[2]);
+      if (state.scores[1] + state.scores[2] === state.maxScore) {
+        if (state.scores[1] > state.scores[2]) {
+          return 1;
+        } else if (state.scores[1] < state.scores[2]) {
+          return 2;
+        } else {
+          return 0;
+        }
+      } else {
+        return null;
+      }
+    },
   },
   actions: {
     actOnDot({commit, state, getters}, dot) {
@@ -386,6 +427,10 @@ const store = new Vuex.Store({
             ) {
               hasFilledNewCell = true;
               commit('selectFace', nodes);
+              commit('incrementPlayerScore', state.currentPlayer);
+              // if (state.scores[1] + state.scores[2] === state.faces.length) {
+              //   commit('setWinner', state.scores[1] > state.scores[2] ? 1 : 2);
+              // }
             }
           });
           commit('resetFirstDot');
@@ -412,11 +457,10 @@ const store = new Vuex.Store({
       Vue.set(state.edges, squareEdgeId(firstDot, secondDot), true);
     },
     selectFace(state, nodes) {
-      // console.info('selectFace', nodes);
-      // console.info('face id', squareFaceId(nodes));
-      // console.info('face filled', state.faces[squareFaceId(nodes)]);
       Vue.set(state.faces, squareFaceId(nodes), state.currentPlayer);
-      // console.info('face filled', state.faces[squareFaceId(nodes)]);
+    },
+    incrementPlayerScore(state, player) {
+      Vue.set(state.scores, player, state.scores[player] + 1);
     },
     toggleCurrentPlayer(state) {
       if (state.currentPlayer === 1) {
@@ -425,6 +469,9 @@ const store = new Vuex.Store({
         state.currentPlayer = 1;
       }
     },
+    // setWinner(state, player) {
+    //   state.winner = player;
+    // },
   },
 });
 

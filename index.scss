@@ -1,3 +1,7 @@
+// TODO
+//  - Add starting animation to simulate ripple effect
+//    for dots (from top left to bottom right)
+//    (hopefully entices user to click a dot)
 // DONE
 //  - Replace use of rem padding, etc. with vmin
 $bg-color: #FCEFEF;
@@ -27,7 +31,7 @@ body, html {
   padding-top: 5vh;
   width: 75vmin;
   
-  .player {
+  .status, .player {
     background-color: $line-color;
     color: $bg-color;
     cursor: default;
@@ -46,11 +50,17 @@ body, html {
     }
   }
   
-  & > :first-child {
+  .status {
+    border-radius: 16px;
+    opacity: 1;
+    width: 100%;
+  }
+  
+  & > .player:first-child {
     border-radius: 16px 0 0 16px;
   }
   
-  & > :last-child {
+  & > .player:last-child {
     border-radius: 0 16px 16px 0;
   }
   
@@ -156,7 +166,9 @@ body, html {
   align-items: center;
   display: flex;
   // height: 100%;
+  font-size: 0;
   justify-content: center;
+  line-height: 0;
   opacity: 0.75;
   transition: background-color 1.5s;
   user-select: none;
@@ -169,17 +181,18 @@ body, html {
     color: $bg-color;
     cursor: default;
     // font-size: 3rem;
+    font-size: 0;
     font-weight: bold;
     line-height: 0;
     // height: 100%;
-    
+
     svg {
       // height: 100%;
       display: inline;
       // float: left;
       margin: 0;
       padding: 0;
-      width: 100%;
+      width: 99%;
 
       text {
         fill: $bg-color;
