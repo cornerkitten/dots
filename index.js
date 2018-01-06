@@ -145,7 +145,9 @@ Vue.component('cell', {
   template: `
 <div class="cell" v-bind:class="{ 'filled-cell': isFilled }">
   <div v-if="isFilled" class="player">
-  {{ player }}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <text x="16" y="18" text-anchor="middle" alignment-baseline="middle" font-size="32">{{ player }}</text>
+    </svg>
   </div>
 </div>
 `,

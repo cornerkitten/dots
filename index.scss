@@ -33,8 +33,9 @@ body, html {
     cursor: default;
     font-size: 5vh; // 3rem
     font-weight: bold;
+    // height: 5vmin;
     opacity: 0.25;
-    padding: 2.5vh; // 16px
+    padding: 2.5vmin 0; // 16px
     text-align: center;
     transition: opacity 0.5s;
     user-select: none;
@@ -45,13 +46,22 @@ body, html {
     }
   }
   
-  :first-child {
+  & > :first-child {
     border-radius: 16px 0 0 16px;
   }
   
-  :last-child {
+  & > :last-child {
     border-radius: 0 16px 16px 0;
   }
+  
+//   svg {
+//     height: 100%;
+    
+//     text {
+//       fill: $bg-color;
+//       font-family: 'Helvetica', 'Arial', sans-serif;
+//     }
+//   }
 }
 
 .dot-graph {
@@ -145,6 +155,7 @@ body, html {
 .cell {
   align-items: center;
   display: flex;
+  // height: 100%;
   justify-content: center;
   opacity: 0.75;
   transition: background-color 1.5s;
@@ -157,8 +168,25 @@ body, html {
   .player {
     color: $bg-color;
     cursor: default;
-    font-size: 3rem;
+    // font-size: 3rem;
     font-weight: bold;
+    line-height: 0;
+    // height: 100%;
+    
+    svg {
+      // height: 100%;
+      display: inline;
+      // float: left;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+
+      text {
+        fill: $bg-color;
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        font-size: 16px;
+      }
+    }
   }
 }
 
