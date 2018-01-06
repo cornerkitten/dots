@@ -6,6 +6,24 @@
 //  - Refresh h-line component when state changes for $store.state.hLines
 document.addEventListener('touchstart', () => {}, true);
 
+Vue.component('overview', {
+  computed: {
+    currentPlayer() {
+      return this.$store.state.currentPlayer;
+    }
+  },
+  template: `
+<div class="overview">
+  <div class="player" v-bind:class="{ 'current-player': currentPlayer === 1 }">
+    1
+  </div>
+  <div class="player" v-bind:class="{ 'current-player': currentPlayer === 2 }">
+    2
+  </div>
+</div>
+`,
+});
+
 Vue.component('dot', {
   props: {
     col: {
@@ -97,7 +115,7 @@ Vue.component('v-line', {
 `,
 });
 
-Vue.component('cell-space', {
+Vue.component('cell', {
   props: {
     topRow: {
       type: Number,
@@ -110,20 +128,30 @@ Vue.component('cell-space', {
   },
   computed: {
     isFilled() {
-      const result = this.$store.getters.isFilledFace({
+      const result = this.$store.getters.isFilledCell({
         topRow: this.topRow,
         leftCol: this.leftCol,
       });
       console.info('isFilled', result);
       return result;
-    }
+    },
+    player() {
+      return this.$store.getters.playerAtCell({
+        topRow: this.topRow,
+        leftCol: this.leftCol,
+      });
+    },
   },
   template: `
-<div class="cell" v-bind:class="{ 'filled-cell': isFilled }"><span></span></div>
+<div class="cell" v-bind:class="{ 'filled-cell': isFilled }">
+  <div v-if="isFilled" class="player">
+  {{ player }}
+  </div>
+</div>
 `,
 });
 
-Vue.component('dot-game', {
+Vue.component('dot-graph', {
   props: {
     cols: {
       type: Number,
@@ -143,7 +171,7 @@ Vue.component('dot-game', {
     };
   },
   template: `
-<div class="dot-game" v-bind:style="gameStyle">
+<div class="dot-graph" v-bind:style="gameStyle">
   <template v-for="row in rows">
     <!-- Generate horizontal lines and dots -->
     <template v-for="col in cols">
@@ -154,7 +182,7 @@ Vue.component('dot-game', {
     <!-- Generate vertical lines and cell spaces -->
     <template v-if="row < rows" v-for="col in cols">
       <v-line :top-row="row" :bottom-row="row + 1" :col="col"></v-line>
-      <cell-space v-if="col < cols" :top-row="row" :left-col="col"></cell-space>
+      <cell v-if="col < cols" :top-row="row" :left-col="col"></cell>
     </template>
   </template>
 </div>`,
@@ -226,7 +254,7 @@ function squareGraphFaces(size) {
         { row: row + 1, col },
       ]);
       
-      faces[faceId] = false;
+      faces[faceId] = 0; // No player at face
     }
   }
   
@@ -301,9 +329,10 @@ function isAdjacent(first, second) {
 
 const store = new Vuex.Store({
   state: {
-    edges: squareGraphEdges(DOT_COUNT),
     firstDot: null,
+    edges: squareGraphEdges(DOT_COUNT),
     faces: squareGraphFaces(DOT_COUNT),
+    currentPlayer: 1,
   },
   getters: {
     isSelectedDot(state) {
@@ -316,7 +345,12 @@ const store = new Vuex.Store({
     isDrawnEdge(state) {
       return (({ first, second }) => state.edges[squareEdgeId(first, second)]);
     },
-    isFilledFace(state) {
+    isFilledCell(state, getters) {
+      return (({ topRow, leftCol }) => {
+        return getters.playerAtCell({ topRow, leftCol }) > 0;
+      });
+    },
+    playerAtCell(state) {
       return (({ topRow, leftCol }) => {
         const nodes = [
           { row: topRow, col: leftCol },
@@ -335,7 +369,11 @@ const store = new Vuex.Store({
         const secondDot = dot;
         if (firstDot.row === secondDot.row && firstDot.col === secondDot.col) {
           commit('resetFirstDot');
-        } else if (isAdjacent(firstDot, secondDot)) {
+        } else if (isAdjacent(firstDot, secondDot)
+          && !getters.isDrawnEdge({ first: firstDot, second: secondDot })
+        ) {
+          let hasFilledNewCell = false;
+          
           commit('selectEdge', { firstDot, secondDot });
           adjacentSquareFacesOfEdge(firstDot, secondDot).forEach(nodes => {
             if (
@@ -344,10 +382,14 @@ const store = new Vuex.Store({
               && getters.isDrawnEdge({ first: nodes[2], second: nodes[3] })
               && getters.isDrawnEdge({ first: nodes[3], second: nodes[0] })
             ) {
+              hasFilledNewCell = true;
               commit('selectFace', nodes);
             }
           });
           commit('resetFirstDot');
+          if (!hasFilledNewCell) {
+            commit('toggleCurrentPlayer');
+          }
         } else {
           commit('resetFirstDot');
           commit('setFirstDot', secondDot);
@@ -368,12 +410,19 @@ const store = new Vuex.Store({
       Vue.set(state.edges, squareEdgeId(firstDot, secondDot), true);
     },
     selectFace(state, nodes) {
-      console.info('selectFace', nodes);
-      console.info('face id', squareFaceId(nodes));
-      console.info('face filled', state.faces[squareFaceId(nodes)]);
-      Vue.set(state.faces, squareFaceId(nodes), true);
-      console.info('face filled', state.faces[squareFaceId(nodes)]);
-    }
+      // console.info('selectFace', nodes);
+      // console.info('face id', squareFaceId(nodes));
+      // console.info('face filled', state.faces[squareFaceId(nodes)]);
+      Vue.set(state.faces, squareFaceId(nodes), state.currentPlayer);
+      // console.info('face filled', state.faces[squareFaceId(nodes)]);
+    },
+    toggleCurrentPlayer(state) {
+      if (state.currentPlayer === 1) {
+        state.currentPlayer = 2;
+      } else {
+        state.currentPlayer = 1;
+      }
+    },
   },
 });
 

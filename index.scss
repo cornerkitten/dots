@@ -6,22 +6,56 @@ $filled-cell-color: #F1A66A;
 
 body, html {
   background-color: $bg-color;
+  font-family: Helvetica, Arial, sans-serif;
   margin: 0;
   overflow: hidden;
 }
 
 .container {
   align-items: center;
+  justify-content: space-around;
   display: flex;
+  flex-direction: column;
   height: 100vh;
 }
 
-.dot-game {
+
+.overview {
+  display: flex;
+  width: 75vmin;
+  
+  .player {
+    background-color: $line-color;
+    color: $bg-color;
+    cursor: default;
+    font-size: 3rem;
+    font-weight: bold;
+    opacity: 0.25;
+    padding: 16px;
+    text-align: center;
+    transition: opacity 0.5s;
+    user-select: none;
+    width: 50%;
+    
+    &.current-player {
+      opacity: 1;
+    }
+  }
+  
+  :first-child {
+    border-radius: 16px 0 0 16px;
+  }
+  
+  :last-child {
+    border-radius: 0 16px 16px 0;
+  }
+}
+
+.dot-graph {
   $line-size: 8fr;
   $dot-size: 1fr;
   display: grid;
   height: 75vmin;
-  margin: 0 auto;
   width: 75vmin;
 }
 
@@ -105,12 +139,22 @@ body, html {
 }
 
 .cell {
-  // background-color: pink;
+  align-items: center;
+  display: flex;
+  justify-content: center;
   opacity: 0.75;
   transition: background-color 1.5s;
+  user-select: none;
   
   &.filled-cell {
     background-color: $filled-cell-color;
+  }
+  
+  .player {
+    color: $bg-color;
+    cursor: default;
+    font-size: 4rem;
+    font-weight: bold;
   }
 }
 
