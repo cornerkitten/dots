@@ -1,6 +1,6 @@
 {
   "name": "dots",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Play a game of Dots with a friend.",
   "main": "index.js",
   "scripts": {

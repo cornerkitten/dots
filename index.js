@@ -454,6 +454,7 @@ const store = new Vuex.Store({
     maxScore: Math.pow(DOT_COUNT - 1, 2),
     scores: { 1: 0, 2: 0 },
     playerNames: { 1: 'Yoshi', 2: 'Mario' },
+    mute: true,
   },
   getters: {
     isSelectedDot(state) {
@@ -549,15 +550,19 @@ const store = new Vuex.Store({
   },
   mutations: {
     setFirstDot(state, { row, col }) {
+      AUDIO.tap.play();
       state.firstDot = { row, col };
     },
     resetFirstDot(state) {
+      AUDIO.tap.play();
       state.firstDot = null;
     },
     selectEdge(state, { firstDot, secondDot }) {
+      AUDIO.tap.play();
       Vue.set(state.edges, squareEdgeId(firstDot, secondDot), true);
     },
     selectFace(state, nodes) {
+      // AUDIO.collect.play();
       Vue.set(state.faces, squareFaceId(nodes), state.currentPlayer);
     },
     incrementPlayerScore(state, player) {
@@ -587,4 +592,9 @@ new Vue({
     };
   },
 });
+
+let AUDIO = {
+  collect: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/collect.ogg'),
+  tap: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/tap-1.ogg'),
+};
 
