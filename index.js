@@ -127,11 +127,7 @@ Vue.component('player', {
   template: `
     <div class="player" v-bind:class="{ 'current-player': isCurrentPlayer }">
       <div class="name">{{ name }}</div>
-      <div class="score">
-        <template v-for="point in score">
-          <i class="fa fa-square point"></i>
-        </template>
-      </div>
+      <div class="score">{{ score }}</div>
     </div>
   `,
 });
@@ -457,7 +453,7 @@ const store = new Vuex.Store({
     currentPlayer: 1,
     maxScore: Math.pow(DOT_COUNT - 1, 2),
     scores: { 1: 0, 2: 0 },
-    playerNames: { 1: 'Mario', 2: 'Yoshi' },
+    playerNames: { 1: 'Yoshi', 2: 'Mario' },
     mute: true,
   },
   getters: {
@@ -566,7 +562,7 @@ const store = new Vuex.Store({
       Vue.set(state.edges, squareEdgeId(firstDot, secondDot), true);
     },
     selectFace(state, nodes) {
-      // AUDIO.collect.play();
+      AUDIO.collect.play();
       Vue.set(state.faces, squareFaceId(nodes), state.currentPlayer);
     },
     incrementPlayerScore(state, player) {
@@ -597,9 +593,43 @@ new Vue({
   },
 });
 
-let AUDIO = {
-  collect: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/collect.ogg'),
-  tap: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/tap-1.ogg'),
-};
+class Sound {
+  constructor(audioContext) {
+    this.audioContext = audioContext;
+    this.audioBuffer = undefined;
+  }
+  
+  onLoad(request) {
+    this.audioContext.decodeAudioData(
+      request.response,
+      buffer => this.audioBuffer = buffer
+    );
+  }
+  
+  load(url) {
+    const request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.responseType = 'arraybuffer';
+    request.onload = () => {if (request.status === 200) { this.onLoad(request) } };
+    request.send();
+    
+    return this;
+  }
+  
+  play() {
+    if (this.audioBuffer) {
+      const source = this.audioContext.createBufferSource();
+      source.buffer = this.audioBuffer;
+      source.connect(this.audioContext.destination);
+      source.start(0, 0);
+    }
+  }
+}
 
+const AUDIO_CONTEXT = new (window.AudioContext || window.webkitAudioContext)();
+
+const AUDIO = {
+  collect: (new Sound(AUDIO_CONTEXT)).load('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/collect.ogg'),
+  tap: (new Sound(AUDIO_CONTEXT)).load('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/tap-1.mp3')
+};
 
