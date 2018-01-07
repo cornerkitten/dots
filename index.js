@@ -127,7 +127,11 @@ Vue.component('player', {
   template: `
     <div class="player" v-bind:class="{ 'current-player': isCurrentPlayer }">
       <div class="name">{{ name }}</div>
-      <div class="score">{{ score }}</div>
+      <div class="score">
+        <template v-for="point in score">
+          <i class="fa fa-square point"></i>
+        </template>
+      </div>
     </div>
   `,
 });
@@ -453,7 +457,7 @@ const store = new Vuex.Store({
     currentPlayer: 1,
     maxScore: Math.pow(DOT_COUNT - 1, 2),
     scores: { 1: 0, 2: 0 },
-    playerNames: { 1: 'Yoshi', 2: 'Mario' },
+    playerNames: { 1: 'Mario', 2: 'Yoshi' },
     mute: true,
   },
   getters: {

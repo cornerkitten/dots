@@ -5,9 +5,13 @@
 //    for dots (from top left to bottom right)
 //    (hopefully entices user to click a dot)
 $bg-color: #FCEFEF;
-$dot-color: #F1A66A;
+// $dot-color: #F1A66A;
+$dot-color: #222;
 $selected-dot-color: #5C9EAD; // #326273
-$line-color: #F1A66A;
+// $line-color: #F1A66A;
+// $line-color: #666;
+$line-color: #222;
+// $filled-cell-color: #F1A66A;
 $filled-cell-color: #F1A66A;
 
 body, html {
@@ -26,6 +30,7 @@ body, html {
 }
 
 
+/*
 .overview {
   display: flex;
   font-size: 5vmin;
@@ -101,15 +106,31 @@ body, html {
       color: $line-color;
     }
   }
+}*/
+
+.overview {
+  display: flex;
+  font-size: 5vh;
+  font-variant: small-caps;
+  width: 50vmin;
+  
+  .player {
+    display: flex;
+  }
+  
+  .point {
+    margin: 1rem 1rem -1rem 1rem;
+  }
 }
 
 .dot-graph {
   $line-size: 8fr;
   $dot-size: 1fr;
   display: grid;
-  height: 75vmin;
-  padding: 5vh;
-  width: 75vmin;
+  height: 50vmin;
+  // padding: 5vh;
+  margin-top: 5vh;
+  width: 50vmin;
 }
 
 #game * {
@@ -217,7 +238,7 @@ body, html {
   font-size: 0;
   justify-content: center;
   line-height: 0;
-  opacity: 0.75;
+  // opacity: 0.75;
   transform: scale3d(0, 0, 1);
   transition: 
     transform 0.25s
