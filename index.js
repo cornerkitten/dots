@@ -8,7 +8,7 @@
 //  - Confetti implementation inspired from "CSS Particle Effects" pen
 //    by Atticus Koya (https://codepen.io/k-ya/pen/bpxgWZ)
 
-const DOT_COUNT = 3;
+const DOT_COUNT = 4;
 
 document.addEventListener('touchstart', () => {}, true);
 
@@ -78,13 +78,15 @@ Vue.component('overview', {
   },
   template: `
     <div class="overview">
-      <div class="players">
-        <player :player-id="1"></player>
-        <player :player-id="2"></player>
-      </div>
-      <template v-if="!isPlaying">
+      <template v-if="isPlaying">
+        <div class="players">
+          <player :player-id="1"></player>
+          <player :player-id="2"></player>
+        </div>
+      </template>
+      <template v-else>
         <confetti></confetti>
-        <div class="end-result">
+        <div class="status">
           {{ winStatus }}
         </div>
       </template>
@@ -166,9 +168,8 @@ Vue.component('dot', {
     };
   },
   template: `
-    <div class="dot" v-on:click="select" v-bind:style="style">
-      <span v-bind:class="{ 'selected': isSelected }"></span>
-    </div>
+<!-- <span v-bind:class="{ 'selected': isSelected }"></span> -->
+    <div class="dot" v-on:click="select" v-bind:style="style"><img class="visible-dot" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/dot-v1-export.svg" v-bind:class="{ 'selected': isSelected }" /></div>
   `,
 });
 
@@ -593,7 +594,6 @@ new Vue({
 
 let AUDIO = {
   collect: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/collect.ogg'),
-  // tap: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/tap-1.ogg'),
-  tap: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/tap-1-amplified.ogg'),
+  tap: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/tap-1.ogg'),
 };
 

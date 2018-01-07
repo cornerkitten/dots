@@ -4,27 +4,24 @@
 //  - Add starting animation to simulate ripple effect
 //    for dots (from top left to bottom right)
 //    (hopefully entices user to click a dot)
-$sandy-brown: #F1A66A;
-$sea-shell: #FCEFEF;
-$bistre: #362C28;
-$light-steel-blue: #B8C5D6;
-$ufo-green: #23CE6B;
-$alice-blue: #EDF5FC;
-$rose-quartz: #A39BA8;
-$charleston-green: #272D2D;
-$pictorial-carmen: #CA054D;
-$peach-orange: #FFCF9C;
-$cadet: #5E6472;
+// Color Considerations
+// $sandy-brown: #F1A66A;
+// $sea-shell: #FCEFEF;
+// $bistre: #362C28;
+// $light-steel-blue: #B8C5D6;
+// $ufo-green: #23CE6B;
+// $alice-blue: #EDF5FC;
+// $rose-quartz: #A39BA8;
+// $charleston-green: #272D2D;
+// $pictorial-carmen: #CA054D;
+// $peach-orange: #FFCF9C;
+// $cadet: #5E6472;
 
-$primary-color: $sandy-brown;
-$bg-color: $sea-shell;
-// #FFE0C0
-
-$dot-color: $primary-color;
-// $selected-dot-color: #5C9EAD; // #326273
-$line-color: $primary-color;
-$filled-cell-color: $primary-color;
-$ui-primary-color: $primary-color;
+$bg-color: #FCEFEF;
+$dot-color: #F1A66A;
+$selected-dot-color: #5C9EAD; // #326273
+$line-color: #F1A66A;
+$filled-cell-color: #F1A66A;
 
 body, html {
   background-color: $bg-color;
@@ -57,7 +54,7 @@ body, html {
   }
   
   .status {
-    background-color: $ui-primary-color;
+    background-color: $line-color;
     color: $bg-color;
     cursor: default;
     // height: 5vmin;
@@ -101,8 +98,8 @@ body, html {
     }
 
     .name {
-      background-color: $ui-primary-color;
-      border: 1vmin solid $ui-primary-color;
+      background-color: $line-color;
+      border: 1vmin solid $line-color;
       box-sizing: border-box;
       color: $bg-color;
       user-select: none;
@@ -110,36 +107,12 @@ body, html {
     }
 
     .score {
-      border: 1vmin solid $ui-primary-color;
+      border: 1vmin solid $line-color;
       border-radius: 0 5vmin 5vmin 0;
       box-sizing: border-box;
       // margin-top: -10px;
-      color: $ui-primary-color;
+      color: $line-color;
     }
-  }
-}
-
-.overview {
-  .end-result {
-    align-items: center;
-    background-color: hsla(hue($bg-color), saturation($bg-color), lightness($bg-color), 0.85);
-    color: $ui-primary-color;
-    // background-color: hsla(
-    //   hue($ui-primary-color),
-    //   saturation($ui-primary-color),
-    //   lightness($ui-primary-color),
-    //   0.5
-    //   );
-    display: flex;
-    font-size: 3rem;
-    height: 20vh;
-    left: 0;
-    justify-content: center;
-    // opacity: 0.5;
-    position: fixed;
-    top: 40vh;
-    width: 100vw;
-    z-index: 100;
   }
 }
 
@@ -176,9 +149,9 @@ body, html {
   height: 400%;
   
   -webkit-tap-highlight-color: transparent;
-  transition:
+  // transition:
     // 0.5s transform,
-    0.5s background-color;
+    // 0.5s background-color;
   width: 400%;
   /* TODO Provide alternative fix for display change when transform comes into play */
   will-change: transform;
@@ -207,13 +180,38 @@ body, html {
     }
   }
   
+  
+  & .visible-dot {
+    $dot-size: 50%;
+    
+    // background-color: $dot-color;
+    // TODO Fix cutoff issue when circle is scaled
+    // border-radius: $dot-size;
+    display: block;
+    height: $dot-size;
+    margin: $dot-size / 2;
+    position:absolute;
+    transition:
+      0.2s background-color,
+      0.2s border-radius,
+      0.2s transform;
+    width: $dot-size;
+    // will-change: transform;
+    
+    &.selected {
+      // background-color: $selected-dot-color;
+      // transform: rotateZ(45deg);
+      transform: scale(2);
+    }
+  }
+  
   &:hover {
     cursor: pointer;
   }
   
-  &:hover span {
+  // &:hover span {
     // background-color: $selected-dot-color;
-  }
+  // }
 }
 
 .h-line,
@@ -251,23 +249,17 @@ body, html {
 
 .cell {
   align-items: center;
-  background-color: $filled-cell-color;
   display: flex;
   // height: 100%;
   font-size: 0;
   justify-content: center;
   line-height: 0;
   opacity: 0.75;
-  overflow: hidden;
-  transform: scale3d(0, 0, 1);
-  transition: 
-    transform 0.25s
-    // background-color 1.5s
-    ;
+  transition: background-color 0.5s;
   user-select: none;
   
   &.filled-cell {
-  transform: scale3d(1, 1, 1);
+    background-color: $filled-cell-color;
   }
   
   .player {
