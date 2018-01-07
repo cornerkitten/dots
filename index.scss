@@ -4,19 +4,6 @@
 //  - Add starting animation to simulate ripple effect
 //    for dots (from top left to bottom right)
 //    (hopefully entices user to click a dot)
-// Color Considerations
-// $sandy-brown: #F1A66A;
-// $sea-shell: #FCEFEF;
-// $bistre: #362C28;
-// $light-steel-blue: #B8C5D6;
-// $ufo-green: #23CE6B;
-// $alice-blue: #EDF5FC;
-// $rose-quartz: #A39BA8;
-// $charleston-green: #272D2D;
-// $pictorial-carmen: #CA054D;
-// $peach-orange: #FFCF9C;
-// $cadet: #5E6472;
-
 $bg-color: #FCEFEF;
 $dot-color: #F1A66A;
 $selected-dot-color: #5C9EAD; // #326273
@@ -180,38 +167,13 @@ body, html {
     }
   }
   
-  
-  & .visible-dot {
-    $dot-size: 50%;
-    
-    // background-color: $dot-color;
-    // TODO Fix cutoff issue when circle is scaled
-    // border-radius: $dot-size;
-    display: block;
-    height: $dot-size;
-    margin: $dot-size / 2;
-    position:absolute;
-    transition:
-      0.2s background-color,
-      0.2s border-radius,
-      0.2s transform;
-    width: $dot-size;
-    // will-change: transform;
-    
-    &.selected {
-      // background-color: $selected-dot-color;
-      // transform: rotateZ(45deg);
-      transform: scale(2);
-    }
-  }
-  
   &:hover {
     cursor: pointer;
   }
   
-  // &:hover span {
+  &:hover span {
     // background-color: $selected-dot-color;
-  // }
+  }
 }
 
 .h-line,
@@ -249,17 +211,23 @@ body, html {
 
 .cell {
   align-items: center;
+  background-color: $filled-cell-color;
   display: flex;
   // height: 100%;
   font-size: 0;
   justify-content: center;
   line-height: 0;
   opacity: 0.75;
-  transition: background-color 0.5s;
+  transform: scale3d(0, 0, 1);
+  transition: 
+    transform 0.25s
+    // background-color 1.5s
+    ;
   user-select: none;
   
   &.filled-cell {
-    background-color: $filled-cell-color;
+    // background-color: $filled-cell-color;
+    transform: scale3d(1, 1, 1);
   }
   
   .player {
@@ -320,4 +288,5 @@ body, html {
     opacity: 0;
   }
 }
+
 

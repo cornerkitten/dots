@@ -168,8 +168,9 @@ Vue.component('dot', {
     };
   },
   template: `
-<!-- <span v-bind:class="{ 'selected': isSelected }"></span> -->
-    <div class="dot" v-on:click="select" v-bind:style="style"><img class="visible-dot" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/dot-v1-export.svg" v-bind:class="{ 'selected': isSelected }" /></div>
+    <div class="dot" v-on:click="select" v-bind:style="style">
+      <span v-bind:class="{ 'selected': isSelected }"></span>
+    </div>
   `,
 });
 
@@ -596,4 +597,5 @@ let AUDIO = {
   collect: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/collect.ogg'),
   tap: new Audio('https://s3-us-west-2.amazonaws.com/s.cdpn.io/928004/tap-1.ogg'),
 };
+
 
